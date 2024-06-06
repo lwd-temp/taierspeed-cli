@@ -139,10 +139,6 @@ func getServerList(c *cli.Context, servers *[]string, groups *[]string) ([]defs.
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(resp.Status)
-	}
-
 	if log.GetLevel() == log.DebugLevel {
 		coreApiDebug(resp)
 	}
@@ -153,6 +149,10 @@ func getServerList(c *cli.Context, servers *[]string, groups *[]string) ([]defs.
 	}
 
 	log.Debugf("Time taken to get server list: %s", time.Since(start))
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s: %s", resp.Status, b)
+	}
 
 	var res struct {
 		Code int                   `json:"code"`
@@ -184,10 +184,6 @@ func getVersion(c *cli.Context) (*defs.Version, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(resp.Status)
-	}
-
 	if log.GetLevel() == log.DebugLevel {
 		coreApiDebug(resp)
 	}
@@ -195,6 +191,10 @@ func getVersion(c *cli.Context) (*defs.Version, error) {
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s: %s", resp.Status, b)
 	}
 
 	var res struct {
